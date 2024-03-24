@@ -60,7 +60,6 @@ public class Http {
 
             return request.decrypt(connection.getHeaderField("x-api-action"),
                     "POST",
-                    connection.getHeaderField("x-api-client"),
                     connection.getHeaderField("x-api-key"),
                     body.getString("x-api-message"),
                     connection.getHeaderField("x-api-validate"),

@@ -66,8 +66,6 @@ public class ExternalAPI {
             arrayList.add(xApiMessage);
 
             String xApiValidate = Md5.hash(String.join("", arrayList) + encryptKey);
-//            System.out.printf(String.join("", arrayList) + encryptKey);
-//            System.out.print(xApiValidate);
 
             JSONObject body = new JSONObject().put("x-api-message", xApiMessage);
             JSONObject headers = new JSONObject();
@@ -87,7 +85,7 @@ public class ExternalAPI {
         }
     }
 
-    protected JSONObject decrypt(String xApiAction, String method, String xApiClient,
+    protected JSONObject decrypt(String xApiAction, String method,
                                  String xApiKey, String xApiMessage, String xApiValidate, String accessToken) throws JSONException {
         String encryptKey;
         try {

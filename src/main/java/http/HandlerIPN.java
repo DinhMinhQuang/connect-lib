@@ -45,7 +45,6 @@ public class HandlerIPN implements HttpHandler {
 
             requestPartner = request.decrypt(headers.get("X-api-action").get(0),
                     requestMethod,
-                    headers.get("X-api-client").get(0),
                     headers.get("X-api-key").get(0),
                     body.getString("x-api-message"),
                     headers.get("X-api-validate").get(0),
