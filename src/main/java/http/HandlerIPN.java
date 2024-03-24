@@ -1,9 +1,8 @@
-package https;
+package main.java.http;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import env.Config;
-import org.json.JSONException;
+import main.java.models.Config;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -13,6 +12,7 @@ import java.io.OutputStream;
 
 import java.util.List;
 import java.util.Map;
+
 
 public class HandlerIPN implements HttpHandler {
 
@@ -26,7 +26,8 @@ public class HandlerIPN implements HttpHandler {
             System.out.println("Request Method IPN: " + requestMethod);
 
             Map<String, List<String>> headers = exchange.getRequestHeaders();
-            System.out.println("Request Headers IPN: " + headers.toString());
+            System.out.println("Request Headers IPN: ");
+            headers.forEach((key, value) -> System.out.println("Key: " + key + " Value: " + value));
 
             StringBuilder requestBody = new StringBuilder();
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(exchange.getRequestBody()))) {
@@ -38,7 +39,8 @@ public class HandlerIPN implements HttpHandler {
             JSONObject body = new JSONObject(requestBody.toString());
             System.out.println("Request Body IPN: " + requestBody);
 
-            Request request = new Request("", Config.xApiClient, Config.privateKey, Config.publicKeyPayME);
+            Config config = Config.getInstance();
+            ExternalAPI request = new ExternalAPI("", config.getAppId_payME(), config.getPrivateKey(), config.getPublicKey_payME());
             JSONObject requestPartner;
 
             requestPartner = request.decrypt(headers.get("X-api-action").get(0),

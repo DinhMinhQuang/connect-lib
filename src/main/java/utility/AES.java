@@ -1,4 +1,4 @@
-package crypto;
+package main.java.utility;
 
 import org.jetbrains.annotations.NotNull;
 

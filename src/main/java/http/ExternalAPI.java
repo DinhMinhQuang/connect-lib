@@ -1,8 +1,8 @@
-package https;
+package main.java.http;
 
-import crypto.AES;
-import crypto.Md5;
-import crypto.RSA;
+import main.java.utility.AES;
+import main.java.utility.Md5;
+import main.java.utility.RSA;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,14 +11,14 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Random;
 
-public class Request {
+public class ExternalAPI {
     private final String path;
     private final String appId;
 
     private final String publicKeyPayME;
     private final String privateKey;
 
-    Request(String path, String appId, String privateKey,
+    ExternalAPI(String path, String appId, String privateKey,
             String publicKeyPayME) {
         this.path = path;
         this.appId = appId;
@@ -49,14 +49,13 @@ public class Request {
     protected JSONObject encrypt(String method, JSONObject payload, String accessToken) throws Exception {
         try {
             String encryptKey = generateRandomString(21);
-            String xApiKey = RSA.Encrypt(encryptKey, this.publicKeyPayME);
+            String xApiKey = RSA.encrypt(encryptKey, this.publicKeyPayME);
             String xApiAction = AES.encrypt(this.path, encryptKey);
             String xApiMessage = null;
-            System.out.println(payload.toString());
+
             if (payload.isNull(String.valueOf(false))) {
                 xApiMessage = AES.encrypt(payload.toString(), encryptKey);
             }
-
             ArrayList<String> arrayList = new ArrayList<>();
             arrayList.add(xApiAction);
             arrayList.add(method);
@@ -67,8 +66,8 @@ public class Request {
             arrayList.add(xApiMessage);
 
             String xApiValidate = Md5.hash(String.join("", arrayList) + encryptKey);
-            System.out.printf(String.join("", arrayList) + encryptKey);
-            System.out.print(xApiValidate);
+//            System.out.printf(String.join("", arrayList) + encryptKey);
+//            System.out.print(xApiValidate);
 
             JSONObject body = new JSONObject().put("x-api-message", xApiMessage);
             JSONObject headers = new JSONObject();
@@ -90,9 +89,9 @@ public class Request {
 
     protected JSONObject decrypt(String xApiAction, String method, String xApiClient,
                                  String xApiKey, String xApiMessage, String xApiValidate, String accessToken) throws JSONException {
-        String encryptKey = null;
+        String encryptKey;
         try {
-            encryptKey = RSA.Decrypt(xApiKey, this.privateKey);
+            encryptKey = RSA.decrypt(xApiKey, this.privateKey);
         } catch (Exception e) {
             throw new RuntimeException("Thông tin x-api-key không chính xác" + e.getMessage());
         }
@@ -105,8 +104,8 @@ public class Request {
         if (!validate.equals(xApiValidate)) {
             throw new RuntimeException("Thông tin x-api-validate không chính xác");
         }
-        ;
-        String body = null;
+
+        String body;
         try {
             body = AES.decrypt(xApiMessage, encryptKey);
         } catch (Exception e) {
