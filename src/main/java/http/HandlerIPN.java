@@ -19,7 +19,7 @@ public class HandlerIPN implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         try {
-            exchange.getResponseHeaders().set("Content-Type", "application/json");
+            exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
             exchange.getResponseHeaders().set("Accept", "application/json");
 
             String requestMethod = exchange.getRequestMethod();
@@ -40,7 +40,7 @@ public class HandlerIPN implements HttpHandler {
             System.out.println("Request Body IPN: " + requestBody);
 
             Config config = Config.getInstance();
-            ExternalAPI request = new ExternalAPI("", config.getAppId_payME(), config.getPrivateKey(), config.getPublicKey_payME());
+            ExternalAPI request = new ExternalAPI("", config.getAppId_payME(), config.getPrivateKey(), config.getPublicKey_payME(), config.getSecretKey());
             JSONObject requestPartner;
 
             requestPartner = request.decrypt(headers.get("X-api-action").get(0),

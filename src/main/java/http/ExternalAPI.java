@@ -4,6 +4,7 @@ import main.java.utility.AES;
 import main.java.utility.Md5;
 import main.java.utility.RSA;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -17,13 +18,15 @@ public class ExternalAPI {
 
     private final String publicKeyPayME;
     private final String privateKey;
+    private final String secretKey;
 
     ExternalAPI(String path, String appId, String privateKey,
-            String publicKeyPayME) {
+            String publicKeyPayME, @Nullable String secretKey) {
         this.path = path;
         this.appId = appId;
         this.privateKey = privateKey;
         this.publicKeyPayME = publicKeyPayME;
+        this.secretKey = secretKey;
     }
 
     public static @NotNull String generateRandomString(int length) {
@@ -53,18 +56,20 @@ public class ExternalAPI {
             String xApiAction = AES.encrypt(this.path, encryptKey);
             String xApiMessage = null;
 
-            if (payload.isNull(String.valueOf(false))) {
+            if (payload.length() != 0) {
                 xApiMessage = AES.encrypt(payload.toString(), encryptKey);
             }
             ArrayList<String> arrayList = new ArrayList<>();
             arrayList.add(xApiAction);
             arrayList.add(method);
-
-            if (!Objects.equals(accessToken, "")) {
+            if (!accessToken.isEmpty()) {
                 arrayList.add(accessToken);
             }
-            arrayList.add(xApiMessage);
+            if (xApiMessage != null && !xApiMessage.isEmpty()) {
+                arrayList.add(xApiMessage);
+            }
 
+            System.out.println(arrayList);
             String xApiValidate = Md5.hash(String.join("", arrayList) + encryptKey);
 
             JSONObject body = new JSONObject().put("x-api-message", xApiMessage);
@@ -111,5 +116,29 @@ public class ExternalAPI {
         }
         return new JSONObject(body);
     }
+    protected String hashChecksum(String method, String path, JSONObject payload) {
+        ArrayList<String> arrayList = new ArrayList<>();
+        arrayList.add(method);
+        arrayList.add(path);
+        arrayList.add(payload.toString());
+        return Md5.hash(String.join("", arrayList) + secretKey);
+    }
 
+    protected JSONObject validateChecksum(String method, String path, JSONObject payload, String xApiValidate) throws JSONException {
+            ArrayList<String> arrayList = new ArrayList<>();
+            arrayList.add(path);
+            arrayList.add(method);
+            JSONObject body = new JSONObject();
+            body.putOpt("code", payload.get("code"));
+            body.put("message", payload.get("message"));
+            body.put("data", payload.get("data"));
+            arrayList.add(body.toString());
+            String validate = Md5.hash(String.join("", arrayList) + secretKey);
+            System.out.println(validate);
+            System.out.println(String.join("", arrayList) + secretKey);
+            if (!validate.equals(xApiValidate)) {
+                throw new RuntimeException("Thông tin x-api-validate không chính xác");
+            }
+            return payload;
+    }
 }
