@@ -13,7 +13,7 @@ public class Main {
         Server server = new Server(Config.getInstance().getPort());
         server.start();
 
-        JSONObject get = PayME.getEWallet();
+        JSONObject get = PayME.createWeb();
         System.out.println(get);
 //      {"code":105000,"data":{"url":"https://sbx.payme.vn/g/payment/G1NC8N1VCULM","transaction":"G1NC8N1VCULM"},"message":"Tạo đơn thanh toán thành công"}
     }

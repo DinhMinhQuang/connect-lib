@@ -96,4 +96,16 @@ public class PayME {
             throw new RuntimeException(e);
         }
     }
+
+    public static JSONObject getSDKEWallet() throws JSONException {
+        try {
+            JSONObject body = new JSONObject();
+            body.put("userId",  "12313131");
+            body.put("phone",  "0333823057");
+            return Http.POST("be/ewallet/transfer", body, "");
+        } catch(IOException e) {
+            System.out.println("Error when calling /payment/web: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
 }
